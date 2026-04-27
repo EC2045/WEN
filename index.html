@@ -14,6 +14,7 @@
             font-family: 'Noto Sans JP', sans-serif;
             background-color: #0a0a0a;
             color: #e5e5e5;
+            scroll-behavior: smooth;
         }
 
         .wzn-logo-font {
@@ -37,6 +38,7 @@
             border-radius: 8px;
             background: #000;
             border: 1px solid #333;
+            transition: all 0.5s ease;
         }
 
         .video-container video {
@@ -54,7 +56,7 @@
             box-shadow: 0 4px 15px rgba(255,255,255,0.05);
         }
 
-        /* ニュースティッカーの滑らかな実装 */
+        /* ニュースティッカー */
         .ticker-wrap {
             width: 100%;
             overflow: hidden;
@@ -92,20 +94,49 @@
             color: #fb923c;
             text-decoration: underline;
         }
+
+        /* 放送ログのインタラクティブ・スタイル */
+        .broadcast-log-item {
+            transition: all 0.3s ease;
+            border-left: 0 solid #fb923c;
+        }
+
+        .broadcast-log-item:hover {
+            background: #1a1a1a;
+            border-left-width: 4px;
+            padding-left: 1.25rem;
+        }
+
+        .broadcast-log-item.active {
+            background: #262626;
+            border-left-width: 4px;
+            border-left-color: #fb923c;
+            padding-left: 1.25rem;
+        }
+
+        /* フェードインアニメーション */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- Emergency Ticker (Seamless Loop) -->
+    <!-- Emergency Ticker -->
     <div class="ticker-wrap">
         <div class="ticker" id="ticker-content">
-            <div class="ticker-item">【緊急】保管施設から「呪いの鉛筆」が脱走。現在も逃走中につき、筆記具の所持にご注意ください。</div>
-            <div class="ticker-item">【速報】呪いの500円玉を不正流通させていた金職人が自宅から失踪。現場には「お釣りです」の書き置き。</div>
-            <div class="ticker-item">物理法則の変動により、本日18時より重力が15%軽減されます。</div>
-            
-            <div class="ticker-item">【緊急】保管施設から「呪いの鉛筆」が脱走。現在も逃走中につき、筆記具の所持にご注意ください。</div>
-            <div class="ticker-item">【速報】呪いの500円玉を不正流通させていた金職人が自宅から失踪。現場には「お釣りです」の書き置き。</div>
-            <div class="ticker-item">物理法則の変動により、本日18時より重力が15%軽減されます。</div>
+            <div class="ticker-item">【速報】ラ＝ウクカ大陸の最新地図が公開。和温人国、無響帝国、大海共和国の境界線が確定。</div>
+            <div class="ticker-item">【警告】「開いたふり」をするドアの目撃情報。不用意な接触は次元迷子を招く恐れがあります。</div>
+            <div class="ticker-item">【緊急】保管施設から「呪いの鉛筆」が脱走。現在も逃走中につきご注意ください。</div>
+            <!-- Loop -->
+            <div class="ticker-item">【速報】ラ＝ウクカ大陸の最新地図が公開。和温人国、無響帝国、大海共和国の境界線が確定。</div>
+            <div class="ticker-item">【警告】「開いたふり」をするドアの目撃情報。不用意な接触は次元迷子を招く恐れがあります。</div>
+            <div class="ticker-item">【緊急】保管施設から「呪いの鉛筆」が脱走。現在も逃走中につきご注意ください。</div>
         </div>
     </div>
 
@@ -113,12 +144,11 @@
     <header class="border-b border-gray-800 sticky top-0 bg-black/80 backdrop-blur-md z-50">
         <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <!-- 元のWZNロゴデザインに戻しました -->
                 <div class="w-12 h-12 rounded-full border-2 border-orange-500 flex items-center justify-center font-bold text-xl text-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.3)]">
                     WZN
                 </div>
-                <div class="hidden md:block">
-                    <h1 class="text-2xl wzn-logo-font">WORLD ZERO NEWS</h1>
+                <div class="hidden md:block text-left">
+                    <h1 class="text-2xl wzn-logo-font leading-none">WORLD ZERO NEWS</h1>
                     <a href="https://ec2045.github.io/Waon-Jinkoku/" target="_blank" class="text-[10px] text-gray-500 gov-link transition-colors">
                         和温人国政府公認報道局 (公式サイトへ)
                     </a>
@@ -126,7 +156,7 @@
             </div>
             
             <div class="text-right">
-                <div id="clock" class="text-2xl font-mono text-orange-400">35:30:00</div>
+                <div id="clock" class="text-2xl font-mono text-orange-400">35:31:00</div>
                 <div class="text-[10px] text-gray-500">次元標準時 (DST)</div>
             </div>
         </div>
@@ -135,134 +165,212 @@
     <!-- Navigation -->
     <nav class="bg-gray-900 border-b border-gray-800 overflow-x-auto whitespace-nowrap">
         <div class="max-w-6xl mx-auto px-4 flex space-x-6 py-3 text-sm font-medium">
-            <a href="#" class="text-orange-500 border-b border-orange-500">トップ</a>
+            <a href="#top" class="text-orange-500 border-b border-orange-500">放送中</a>
+            <a href="#news-log" class="hover:text-orange-400">放送ログ</a>
             <a href="#" class="hover:text-orange-400">物理法則</a>
             <a href="#" class="hover:text-orange-400">次元行政</a>
-            <a href="#" class="hover:text-orange-400">空間治安</a>
-            <a href="#" class="hover:text-orange-400">存在論</a>
             <a href="#" class="hover:text-orange-400">アーカイブ</a>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Main Content -->
-        <div class="lg:col-span-2 space-y-8">
-            <article>
+        <!-- Main Content Area -->
+        <div class="lg:col-span-2 space-y-8" id="top">
+            
+            <!-- Video Player Section -->
+            <div id="active-content-container" class="fade-in">
                 <div class="mb-6">
-                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded">重要速報</span>
-                    <h2 class="text-3xl font-bold mt-4 leading-tight">「壁面透過禁止法」を正式に施行 — 物理法則の恣意的利用を厳格に規制</h2>
-                    <p class="text-gray-500 text-sm mt-2">2026.04.26 | 和温人国 報道本部</p>
+                    <span id="article-category" class="bg-blue-600 text-white text-xs px-2 py-1 rounded">地理更新</span>
+                    <h2 id="article-title" class="text-3xl font-bold mt-4 leading-tight">和温人国政府、ラ＝ウクカ大陸の最新地図を公開 — 各国との経済効果に期待</h2>
+                    <p id="article-date" class="text-gray-500 text-sm mt-2">2026.04.27 | 和温人国 地理院</p>
                 </div>
 
-                <!-- Video Section -->
-                <div class="video-container mb-6">
-                    <video controls poster="壁を無視しないでください.png">
-                        <source src="ニュース.mp4" type="video/mp4">
-                        ご使用のブラウザはビデオタグをサポートしていません。
+                <div class="video-container mb-6 shadow-2xl shadow-orange-900/10">
+                    <video id="main-player" controls>
+                        <source id="video-source" src="ニュース2.mp4" type="video/mp4">
                     </video>
                 </div>
 
-                <div class="prose prose-invert max-w-none text-gray-300 leading-relaxed space-y-4">
-                    <p class="font-bold text-white text-lg">【報道概要】</p>
-                    <p>和温人国政府は本日、物理法則を個人の認識によって改変し、壁面を透過する行為を全面的に制限する新法「壁面透過禁止法」の施行を開始しました。放送された映像では、市民が壁を通り抜ける際の空間歪曲と、それに伴う壁面の深刻な劣化が記録されています。</p>
-                    
-                    <div class="flex flex-col md:flex-row gap-6 my-8 items-start">
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-white border-l-4 border-orange-500 pl-4 mb-4">空間摩擦による「風景画」への退化</h3>
-                            <p class="text-sm">すり抜けの際に発生する「次元摩擦」は、壁の分子構造に不可逆的なダメージを与えます。映像にあるように、強固な煉瓦壁が認識を失うことで、物理的衝突判定のない「ただの絵」へと劣化する現象が多発しています。</p>
-                        </div>
-                        <div class="w-full md:w-64 poster-box">
-                            <img src="壁を無視しないでください.png" alt="壁を無視しないでください" class="w-full h-auto">
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-800 p-6 rounded-lg my-8 border border-gray-700">
-                        <h4 class="font-bold text-orange-400 mb-2 underline text-sm uppercase tracking-widest">警告：行政処分について</h4>
-                        <p class="text-sm mb-4">今後、許可なき透過行為が確認された場合、以下の罪状が適用されます。</p>
-                        <ul class="list-disc list-inside space-y-2 text-sm text-gray-200">
-                            <li><span class="font-bold">空間不法占拠罪：</span> 物質との座標重複</li>
-                            <li><span class="font-bold">存在の不適切配置罪：</span> 物理定数の混乱を招く行為</li>
-                        </ul>
-                    </div>
-                </div>
-            </article>
-
-            <div class="border-t border-gray-800 pt-8 mt-8">
-                <h3 class="text-lg font-bold mb-4 flex items-center">
-                    <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                    最新トピックス
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-gray-900 p-4 rounded border border-gray-800 hover:border-gray-600 transition-colors cursor-pointer">
-                        <p class="text-xs text-red-500 mb-1 font-bold">● 事件</p>
-                        <h4 class="font-bold text-sm">【脱走】「呪いの鉛筆」が保管用特殊筆箱を突き破り逃走。周辺のノートに「次は貴様だ」との書き置き。</h4>
-                    </div>
-                    <div class="bg-gray-900 p-4 rounded border border-gray-800 hover:border-gray-600 transition-colors cursor-pointer">
-                        <p class="text-xs text-orange-500 mb-1">社会</p>
-                        <h4 class="font-bold text-sm">【失踪】呪いの500円玉を量産していた金職人、工房ごと消滅。お釣りを受け取った市民は速やかに除霊を。</h4>
-                    </div>
+                <div id="article-body" class="prose prose-invert max-w-none text-gray-300 leading-relaxed space-y-4">
+                    <p>政府は本日、ラ＝ウクカ大陸の全容を記した最新の地図を公開しました。地図には和温人国のほか、無響帝国、大海共和国といった近隣諸国の境界が詳細に描かれており、制作には著名な「T.S氏」も深く関わっていることが判明しました。</p>
+                    <p>この地図の完成により、次元を跨ぐ交易や日常の移動がより円滑になることが期待されています。政府担当者は「地図の確立は存在の固定化に繋がり、日常がより便利になる」とコメントしています。</p>
                 </div>
             </div>
+
+            <!-- News Log / Archive -->
+            <section id="news-log" class="border-t border-gray-800 pt-12">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        放送ログ・バックナンバー
+                    </h3>
+                    <span class="text-xs text-gray-500 font-mono">ARCHIVE SYSTEM v2.5</span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4" id="log-list">
+                    <!-- Log Items -->
+                    <div onclick="switchNews(0)" class="broadcast-log-item active p-4 bg-gray-900/50 rounded-lg border border-gray-800 flex justify-between items-center cursor-pointer" data-id="0">
+                        <div>
+                            <span class="text-[10px] text-orange-500 font-mono">最新放送 [35:31:00]</span>
+                            <h4 class="font-bold text-sm">ニュース：ラ＝ウクカ大陸の最新地図公開</h4>
+                            <p class="text-xs text-gray-500 mt-1">境界線の確定と経済圏の確立について。</p>
+                        </div>
+                        <div class="flex items-center text-orange-500">
+                            <span class="text-xs mr-2">再生中</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
+                        </div>
+                    </div>
+
+                    <div onclick="switchNews(1)" class="broadcast-log-item p-4 bg-gray-900/50 rounded-lg border border-gray-800 flex justify-between items-center cursor-pointer" data-id="1">
+                        <div>
+                            <span class="text-[10px] text-gray-500 font-mono">過去放送 [35:30:15]</span>
+                            <h4 class="font-bold text-sm">ニュース：壁面透過禁止法の施行</h4>
+                            <p class="text-xs text-gray-500 mt-1">物理法則の恣意的利用に関する厳格な規制と罰則。</p>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
+                    </div>
+
+                    <div class="broadcast-log-item p-4 bg-gray-900/50 rounded-lg border border-gray-800 flex justify-between items-center opacity-50 cursor-not-allowed">
+                        <div>
+                            <span class="text-[10px] text-gray-500 font-mono">以前の放送</span>
+                            <h4 class="font-bold text-sm italic">放送記録なし：次元嵐によるデータ破損</h4>
+                            <p class="text-xs text-gray-500 mt-1">アーカイブを復旧中です...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Warning Poster -->
-            <div class="alert-card p-6 rounded-lg">
-                <h3 class="text-red-500 font-bold flex items-center space-x-2 mb-4">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <span>市民への警告</span>
+            <!-- Warning: Doors (Using Uploaded Image) -->
+            <div class="bg-gray-900 p-6 rounded-lg border border-orange-900/30">
+                <h3 class="text-orange-500 font-bold flex items-center space-x-2 mb-4 text-sm uppercase tracking-tighter">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span>Hazard Alert</span>
                 </h3>
+                <div class="poster-box bg-white p-2 mb-4">
+                    <img src="開くフリドア.png" alt="開くフリドア" class="w-full h-auto rounded-sm">
+                </div>
+                <div class="text-center space-y-2 mb-4">
+                    <p class="text-[10px] text-white font-bold leading-tight">「開いているふり」をするドアにご注意ください。</p>
+                </div>
+                <p class="text-[10px] text-gray-500 leading-relaxed">異常対策本部へ速やかに連絡を。不用意な接触は次元迷子を招く恐れがあります。</p>
+            </div>
+
+            <!-- Poster -->
+            <div class="alert-card p-6 rounded-lg">
                 <div class="poster-box mb-4">
                     <img src="壁を走るな.png" alt="壁を走らないでください" class="w-full h-auto">
                 </div>
-                <p class="text-xs text-gray-400">※壁面走行は垂直方向の空間劣化を促進させます。絶対におやめください。</p>
+                <p class="text-[10px] text-gray-400 text-center font-bold">壁面走行：法に触れる恐れがあります</p>
             </div>
 
-            <!-- Access Ranking -->
+            <!-- Quick Links -->
             <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
-                <h3 class="font-bold border-b border-gray-700 pb-2 mb-4">アクセスランキング</h3>
+                <h3 class="font-bold border-b border-gray-700 pb-2 mb-4 text-sm">注目トピックス</h3>
                 <ul class="space-y-4">
-                    <li class="flex space-x-3 items-start">
-                        <span class="text-orange-500 font-bold">1</span>
-                        <p class="text-sm">呪いの500円玉を見分ける3つのポイント：金職人の手癖を追う</p>
+                    <li class="group cursor-pointer">
+                        <p class="text-xs text-orange-500 mb-1">地理更新</p>
+                        <p class="text-sm group-hover:text-orange-400 transition-colors">「T.S氏」とは何者か？ 大陸地図に隠された暗号</p>
                     </li>
-                    <li class="flex space-x-3 items-start border-t border-gray-800 pt-3">
-                        <span class="text-gray-500 font-bold">2</span>
-                        <p class="text-sm">「呪いの鉛筆」が自宅のペン立てに？ 専門家が教える初期症状</p>
-                    </li>
-                    <li class="flex space-x-3 items-start border-t border-gray-800 pt-3">
-                        <span class="text-gray-500 font-bold">3</span>
-                        <p class="text-sm">重力の一部緩和区域が拡大、空中遊泳は登録制に</p>
+                    <li class="group cursor-pointer border-t border-gray-800 pt-3">
+                        <p class="text-xs text-red-500 mb-1">警告</p>
+                        <p class="text-sm group-hover:text-red-400 transition-colors">「呪いの鉛筆」が鉛筆削り機を乗っ取る被害</p>
                     </li>
                 </ul>
-            </div>
-
-            <!-- Ad/Banner -->
-            <div class="bg-orange-600 p-6 rounded-lg text-white font-bold text-center">
-                <p class="text-xs uppercase tracking-widest">WZN Premium</p>
-                <h4 class="text-xl text-white">
-                    <a href="https://ec2045.github.io/Waon-Jinkoku/" target="_blank" class="hover:underline">和温人国ポータルはこちら</a>
-                </h4>
-                <p class="text-[10px] mt-2 font-normal opacity-80">政府提供の最新インフラ情報へ</p>
             </div>
         </div>
     </main>
 
     <footer class="bg-black border-t border-gray-800 py-12 mt-12 text-center text-gray-500">
         <div class="max-w-6xl mx-auto px-4">
-            <p class="text-xs">&copy; 2026 WZN - World Zero News / 和温人国 物理放送ネットワーク</p>
+            <p class="text-xs mb-2">&copy; 2026 WZN - World Zero News / 和温人国 物理放送ネットワーク</p>
+            <p class="text-[10px] opacity-50">本放送は次元安定化装置によって保護されています。</p>
         </div>
     </footer>
 
     <script>
+        // ニュースデータの定義
+        const newsData = [
+            {
+                category: "地理更新",
+                categoryClass: "bg-blue-600",
+                title: "和温人国政府、ラ＝ウクカ大陸の最新地図を公開 — 各国との経済効果に期待",
+                date: "2026.04.27 | 和温人国 地理院",
+                video: "ニュース2.mp4",
+                body: `
+                    <p>政府は本日、ラ＝ウクカ大陸の全容を記した最新の地図を公開しました。地図には和温人国のほか、無響帝国、大海共和国といった近隣諸国の境界が詳細に描かれており、制作には著名な「T.S氏」も深く関わっていることが判明しました。</p>
+                    <p>この地図の完成により、次元を跨ぐ交易や日常の移動がより円滑になることが期待されています。政府担当者は「地図の確立は存在の固定化に繋がり、日常がより便利になる」とコメントしています。</p>
+                `
+            },
+            {
+                category: "重要速報",
+                categoryClass: "bg-red-600",
+                title: "「壁面透過禁止法」を正式に施行 — 物理法則の恣意的利用を厳格に規制",
+                date: "2026.04.26 | 和温人国 報道本部",
+                video: "ニュース.mp4",
+                body: `
+                    <p>和温人国政府は本日、物理法則を個人の認識によって改変し、壁面を透過する行為を全面的に制限する新法「壁面透過禁止法」の施行を開始しました。放送された映像では、市民が壁を通り抜ける際の空間歪曲と、それに伴う壁面の深刻な劣化が記録されています。</p>
+                    <div class="flex flex-col md:flex-row gap-6 my-8 items-start">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-white border-l-4 border-orange-500 pl-4 mb-4 text-sm">空間摩擦による「風景画」への退化</h3>
+                            <p class="text-sm">すり抜けの際に発生する「次元摩擦」は、壁の分子構造に不可逆的なダメージを与えます。強固な煉瓦壁が衝突判定のない「ただの絵」へと劣化する現象が多発しています。</p>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // ニュース切り替え関数
+        function switchNews(id) {
+            const content = newsData[id];
+            if (!content) return;
+
+            // コンテナを一時的に透明に（アニメーション用）
+            const container = document.getElementById('active-content-container');
+            container.classList.remove('fade-in');
+            void container.offsetWidth; // リフロー強制
+            container.classList.add('fade-in');
+
+            // 要素の更新
+            document.getElementById('article-category').textContent = content.category;
+            document.getElementById('article-category').className = `${content.categoryClass} text-white text-xs px-2 py-1 rounded`;
+            document.getElementById('article-title').textContent = content.title;
+            document.getElementById('article-date').textContent = content.date;
+            document.getElementById('article-body').innerHTML = content.body;
+
+            const player = document.getElementById('main-player');
+            const source = document.getElementById('video-source');
+            source.src = content.video;
+            player.load();
+            player.play().catch(e => console.log("Auto-play blocked"));
+
+            // ログのハイライト更新
+            document.querySelectorAll('.broadcast-log-item').forEach(item => {
+                item.classList.remove('active');
+                const badge = item.querySelector('.flex.items-center.text-orange-500');
+                if (badge) badge.innerHTML = '<span class="text-xs mr-2">再生可能</span>';
+            });
+            const activeItem = document.querySelector(`[data-id="${id}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+                const badge = activeItem.querySelector('.flex.items-center.text-orange-500');
+                if (badge) badge.innerHTML = '<span class="text-xs mr-2">再生中</span><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>';
+            }
+
+            // トップへスクロール
+            window.scrollTo({ top: document.getElementById('top').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // 時計
         function updateTime() {
             const clock = document.getElementById('clock');
             const now = new Date();
             let seconds = now.getSeconds();
             let displaySec = seconds < 10 ? '0' + seconds : seconds;
-            clock.textContent = `35:30:${displaySec}`;
+            clock.textContent = `35:31:${displaySec}`;
         }
         setInterval(updateTime, 1000);
         updateTime();
